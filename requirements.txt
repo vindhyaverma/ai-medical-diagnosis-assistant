@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-multipart
+streamlit
+requests
+pandas
+numpy
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+torchxrayvision
+grad-cam
+opencv-python-headless
+Pillow
+scikit-image
