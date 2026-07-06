@@ -55,7 +55,7 @@ async def analyze_medical_data(
                 return {"error": "Groq currently only supports text-based files (like PDFs). Please remove the image/X-Ray or switch to Gemini to analyze images."}
             
             os.environ["GROQ_API_KEY"] = api_key
-            llm = ChatGroq(model="mixtral-8x7b-32768", temperature=0.2)
+            llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.2)
         else:
             os.environ["GOOGLE_API_KEY"] = api_key
             llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.2)
