@@ -1,84 +1,69 @@
 import streamlit as st
 import requests
-import base64
-from PIL import Image
-from io import BytesIO
 
-st.set_page_config(page_title="AI Medical Diagnosis", layout="wide", page_icon="🧠")
+st.set_page_config(page_title="AI Medical Assistant", layout="wide", page_icon="🩺")
 
-st.title("🧠 AI Medical Diagnosis Assistant")
-st.markdown("Upload a Chest X-Ray to receive a Deep Learning-based prediction and an Explainable AI (Grad-CAM) heatmap.")
+st.title("🩺 Comprehensive AI Medical Assistant")
+st.markdown("Upload medical reports (PDFs) and images (X-Rays, MRIs) to get instant, AI-driven medical insights, diagnoses, and guidance.")
 
-# Check API status
 api_url = "http://localhost:8000"
 
-try:
-    response = requests.get(f"{api_url}/health")
-    if response.status_code == 200:
-        st.sidebar.success("✅ Backend API is Connected")
-    else:
-        st.sidebar.error("❌ Backend API Error")
-except:
-    st.sidebar.warning("⚠️ Could not connect to the Backend API. Ensure it is running.")
-
-st.sidebar.header("Instructions")
-st.sidebar.markdown(
-    """
-    1. Upload a valid Chest X-Ray image (JPG/PNG).
-    2. The system will use a DenseNet121 model pre-trained on medical datasets to detect pathologies.
-    3. A Grad-CAM heatmap will be generated to explain the prediction.
-    """
-)
-
-uploaded_file = st.file_uploader("Choose a Chest X-Ray image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    # Display the uploaded image
-    col1, col2 = st.columns(2)
+with st.sidebar:
+    st.header("🔑 Setup")
+    api_key = st.text_input("Enter Google Gemini API Key", type="password")
+    st.markdown("[Get your API Key here](https://aistudio.google.com/app/apikey)")
     
-    with col1:
-        st.subheader("Original X-Ray")
-        img = Image.open(uploaded_file)
-        st.image(img, use_column_width=True)
+    st.divider()
+    
+    # API Health Check
+    try:
+        response = requests.get(f"{api_url}/health")
+        if response.status_code == 200:
+            st.success("✅ Backend Connected")
+        else:
+            st.error("❌ Backend Error")
+    except:
+        st.warning("⚠️ Could not connect to Backend")
 
-    with st.spinner("Analyzing image... This may take a moment."):
-        # Reset file pointer
-        uploaded_file.seek(0)
-        
-        # Send to API
-        files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-        try:
-            res = requests.post(f"{api_url}/predict", files=files)
+# File Uploader
+uploaded_files = st.file_uploader("Upload Medical Files (PDFs or Images)", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
+
+query = st.text_area("What would you like to know about these files?", value="Please analyze these medical documents and provide a comprehensive diagnostic summary, potential next steps, and any prescription or treatment guidance based on the findings.")
+
+if st.button("Analyze with AI Doctor", type="primary"):
+    if not api_key:
+        st.error("Please enter your Gemini API Key in the sidebar.")
+    elif not uploaded_files and not query:
+        st.warning("Please upload files or enter a query.")
+    else:
+        with st.spinner("Analyzing your medical data..."):
             
-            if res.status_code == 200:
-                data = res.json()
-                
-                with col2:
-                    st.subheader("Grad-CAM Heatmap")
-                    heatmap_bytes = base64.b64decode(data["heatmap_base64"])
-                    heatmap_img = Image.open(BytesIO(heatmap_bytes))
-                    st.image(heatmap_img, use_column_width=True, caption="Red areas indicate regions of high importance for the prediction.")
-                
-                st.divider()
-                
-                # Display Results
-                st.subheader("📊 Diagnostic Predictions")
-                
-                for pred in data["predictions"]:
-                    pathology = pred["pathology"]
-                    conf = pred["confidence"]
+            # Prepare files for the request
+            files_to_send = []
+            for file in uploaded_files:
+                files_to_send.append(("files", (file.name, file.getvalue(), file.type)))
+            
+            data = {
+                "api_key": api_key,
+                "query": query
+            }
+            
+            try:
+                if len(files_to_send) > 0:
+                    res = requests.post(f"{api_url}/analyze", data=data, files=files_to_send)
+                else:
+                    res = requests.post(f"{api_url}/analyze", data=data)
                     
-                    st.markdown(f"**{pathology}**")
-                    st.progress(conf / 100.0)
-                    st.write(f"Confidence: {conf:.2f}%")
-                
-                st.divider()
-                
-                st.subheader("📝 Doctor-Friendly Report")
-                st.info(data["report"])
-                
-            else:
-                st.error(f"Error from API: {res.text}")
-                
-        except Exception as e:
-            st.error(f"Failed to process image. Error: {e}")
+                if res.status_code == 200:
+                    response_data = res.json()
+                    if "error" in response_data:
+                        st.error(f"Error from AI Model: {response_data['error']}")
+                    else:
+                        st.subheader("👨‍⚕️ AI Doctor's Report")
+                        st.write(response_data["response"])
+                else:
+                    st.error(f"Backend error: {res.text}")
+                    
+            except Exception as e:
+                st.error(f"Failed to connect to backend: {e}")
+
