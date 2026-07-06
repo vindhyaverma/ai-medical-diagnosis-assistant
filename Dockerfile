@@ -24,4 +24,4 @@ EXPOSE 8000
 
 # Command to run both using a simple shell script
 # Streamlit MUST run on 7860 for Hugging Face Spaces to detect it
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 7860 --server.address 0.0.0.0"]
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 7860 --server.address 0.0.0.0 --server.enableCORS false --server.enableXsrfProtection false"]
