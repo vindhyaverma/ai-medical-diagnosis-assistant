@@ -10,7 +10,7 @@ st.title("🧠 AI Medical Diagnosis Assistant")
 st.markdown("Upload a Chest X-Ray to receive a Deep Learning-based prediction and an Explainable AI (Grad-CAM) heatmap.")
 
 # Check API status
-api_url = "http://backend:8000" if st.secrets.get("DOCKER_ENV") else "http://localhost:8000"
+api_url = "http://localhost:8000"
 
 try:
     response = requests.get(f"{api_url}/health")
