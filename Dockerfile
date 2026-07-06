@@ -18,9 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Expose ports for both FastAPI and Streamlit
+# Expose ports for Hugging Face Spaces (7860 is strictly required)
+EXPOSE 7860
 EXPOSE 8000
-EXPOSE 8501
 
 # Command to run both using a simple shell script
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0"]
+# Streamlit MUST run on 7860 for Hugging Face Spaces to detect it
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 7860 --server.address 0.0.0.0"]
