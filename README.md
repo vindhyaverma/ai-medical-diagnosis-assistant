@@ -1,3 +1,12 @@
+---
+title: AI Medical Diagnosis Assistant
+emoji: 🧠
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # 🧠 AI Medical Diagnosis Assistant
 
 ## Overview
