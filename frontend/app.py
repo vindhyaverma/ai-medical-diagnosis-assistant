@@ -10,8 +10,17 @@ api_url = "http://localhost:8000"
 
 with st.sidebar:
     st.header("🔑 Setup")
-    api_key = st.text_input("Enter Google Gemini API Key", type="password")
-    st.markdown("[Get your API Key here](https://aistudio.google.com/app/apikey)")
+    provider = st.radio("Select AI Provider", ["Google Gemini (Recommended, Multimodal)", "Groq (Fast, Text Only)"])
+    
+    if "Gemini" in provider:
+        provider_name = "Gemini"
+        api_key = st.text_input("Enter Google Gemini API Key", type="password")
+        st.markdown("[Get your API Key here](https://aistudio.google.com/app/apikey)")
+    else:
+        provider_name = "Groq"
+        api_key = st.text_input("Enter Groq API Key", type="password")
+        st.markdown("[Get your API Key here](https://console.groq.com/keys)")
+        st.warning("Groq currently only supports text (PDFs/txt). Do not upload X-Rays or images if using Groq.")
     
     st.divider()
     
@@ -32,11 +41,11 @@ query = st.text_area("What would you like to know about these files?", value="Pl
 
 if st.button("Analyze with AI Doctor", type="primary"):
     if not api_key:
-        st.error("Please enter your Gemini API Key in the sidebar.")
+        st.error(f"Please enter your {provider_name} API Key in the sidebar.")
     elif not uploaded_files and not query:
         st.warning("Please upload files or enter a query.")
     else:
-        with st.spinner("Analyzing your medical data..."):
+        with st.spinner(f"Analyzing your medical data using {provider_name}..."):
             
             # Prepare files for the request
             files_to_send = []
@@ -44,6 +53,7 @@ if st.button("Analyze with AI Doctor", type="primary"):
                 files_to_send.append(("files", (file.name, file.getvalue(), file.type)))
             
             data = {
+                "provider": provider_name,
                 "api_key": api_key,
                 "query": query
             }
