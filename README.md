@@ -79,5 +79,16 @@ streamlit run frontend/app.py --server.port 7860
 **AI Output:**
 The model successfully correlates the elevated inflammatory markers in the text with the visual consolidation in the X-Ray, accurately diagnosing **Community-Acquired Pneumonia (CAP)** and suggesting empiric antibiotic therapy and supportive care.
 
+### 📸 Application Previews
+
+**1. Main Dashboard & File Upload**
+<img src="assets/interface.png" width="800">
+
+**2. AI Doctor's Patient Summary**
+<img src="assets/summary.png" width="800">
+
+**3. Detailed Diagnosis & Treatment Plan**
+<img src="assets/report.png" width="800">
+
 ## ⚠️ Disclaimer
 *This application is a portfolio project intended for educational and demonstrative purposes only. It is not a certified medical device. The AI-generated outputs should never be used as a substitute for professional medical advice, diagnosis, or treatment.*
